@@ -2,8 +2,10 @@ import { Router, Request, Response, NextFunction } from 'express'
 import path from 'path'
 import upload from './uploader'
 import db from './database/connection'
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-const serverIP = `http://192.168.0.108:3333`;
+const serverAddress = !!process.env.SERVER_ADDRESS? process.env.SERVER_ADDRESS : 'http://127.0.0.1:3333' ;
 
 const routes = Router();
 
@@ -13,7 +15,7 @@ routes.get('/', async (req: Request, resp: Response) => {
     imagens = imagens.map(
         element => {
             return { ...element,
-                url: `${serverIP}/${element.name}`
+                url: `${serverAddress}/${element.name}`
             }
         }
     )
@@ -67,7 +69,7 @@ routes.post('/', upload.single('avatar') ,async (req: Request, resp: Response) =
         }) as [number]) [0];
 
         const imageData = (await db('imagem').where('id','=',id) as [Image])[0]
-        imageData.url = `${serverIP}/${imageData.name}`;
+        imageData.url = `${serverAddress}/${imageData.name}`;
 
         return resp.json({
             image: imageData
